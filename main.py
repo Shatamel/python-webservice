@@ -1,8 +1,10 @@
 from bottle import route, run, HTTPResponse
 from pymongo import MongoClient
 import json
+import re
 
 client = MongoClient('mongodb://localhost:27017/')
+url_regex = "^[a-z][a-z0-9+\-.]*"
 
 
 def parse_policy(base, url):
@@ -24,9 +26,9 @@ def parse_policy(base, url):
 def geturls(url):
     db = client.urlsdb
     urls = list(db.urls.find({}, {'_id': 0}))
-    url = url.split("/")
-    policy = parse_policy(urls, url)
+    url = re.findall(url_regex, url)
 
+    policy = parse_policy(urls, url)
     return json.dumps(policy)
 
 
